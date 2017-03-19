@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace BPMFInputPad
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -42,8 +33,10 @@ namespace BPMFInputPad
         };
 
         Dictionary<Key, Button> keyMapping = new Dictionary<Key, Button>();
-
-
+        Dictionary<string, string> specKeys = new Dictionary<string, string>()
+        {
+            { "←", "Backspace" }, { "清", "Esc" }, { "送", "Enter" }
+        };
 
         private void Window_Initialized(object sender, EventArgs e)
         {
@@ -56,18 +49,18 @@ namespace BPMFInputPad
                 var line = symbols[r];
                 for (var c = 0; c < line.Length; c++)
                 {
+                    var t = line[c].ToString();
                     var b = new Button()
                     {
-                        Content = line[c].ToString(),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Stretch,
+                        Content = t,
                         Margin = new Thickness(3),
                         Background = new SolidColorBrush(buttonBgColor)
                     };
                     Grid.SetRow(b, r);
                     Grid.SetColumn(b, c);
                     b.Click += Button_Click;
-                    b.Tag = line[c].ToString();
+                    b.Tag = t;
+                    b.ToolTip = specKeys.ContainsKey(t) ?  specKeys[t] : t;
                     keyMapping.Add(keys[r, c], b);
                     BpmfKeysGrid.Children.Add(b);
                 }
@@ -83,9 +76,9 @@ namespace BPMFInputPad
         Color buttonBgColor = Colors.LightGray;
         ColorAnimation animation;
 
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (InputManager.Current.MostRecentInputDevice is KeyboardDevice && e != null) return;
             Button b = sender as Button;
             b.Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
             var s = b.Tag as string;
@@ -108,19 +101,24 @@ namespace BPMFInputPad
                     break;
             }
         }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        private void Window_KeyUp(object sender, KeyEventArgs e)
         {
             if (keyMapping.ContainsKey(e.Key))
             {
-                var b = keyMapping[e.Key];
-                Button_Click(b, null);
+                Button_Click(keyMapping[e.Key], null);
             }
             else
             {
                 if (e.Key == Key.Space)
                     txtInput.Text += " ";
             }
+            
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            txtInput.Text = "";
+            InputMethod.Current.ImeState = InputMethodState.Off;
         }
     }
 }

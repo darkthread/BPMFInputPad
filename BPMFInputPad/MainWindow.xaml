@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:BPMFInputPad"
         mc:Ignorable="d"
         Title="注音符號輸入字盤 v1.0" Height="220" Width="480" 
-        Initialized="Window_Initialized" Topmost="True" ResizeMode="NoResize" KeyDown="Window_KeyDown">
+        Initialized="Window_Initialized" Topmost="True" ResizeMode="NoResize" KeyUp="Window_KeyUp" Activated="Window_Activated" Icon="keybd.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBox x:Name="txtInput" Text="" Background="#ddd" Margin="3" HorizontalContentAlignment="Stretch" FontSize="18"/>
+            <TextBox x:Name="txtInput" Text="" Background="#ddd" Margin="3" IsReadOnly="True" HorizontalContentAlignment="Stretch" FontSize="18"/>
         </Grid>
         <Grid x:Name="BpmfKeysGrid" Grid.Row="1">
         </Grid>
